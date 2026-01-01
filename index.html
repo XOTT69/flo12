@@ -1,30 +1,31 @@
 <!doctype html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Cycle Tracker</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <h1>Period tracker</h1>
-    <form id="new-period">
-      <fieldset>
-        <legend>Enter your period start and end date</legend>
-        <p>
-          <label for="start-date">Start date</label>
-          <input type="date" id="start-date" required />
-        </p>
-        <p>
-          <label for="end-date">End date</label>
-          <input type="date" id="end-date" required />
-        </p>
-      </fieldset>
-      <p>
-        <button type="submit">Add Period</button>
-      </p>
-    </form>
-    <section id="past-periods"></section>
-    <script src="app.js" defer></script>
-  </body>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Flo UA - Трекер циклу</title>
+<link rel="manifest" href="manifest.json">
+<style>body{font-family:system-ui;padding:2rem;max-width:500px;margin:auto}input,button{padding:.5rem;font-size:1rem}fieldset{border:1px solid #ccc;padding:1rem;margin:1rem 0}</style>
+</head>
+<body>
+<h1>🏥 Flo Трекер</h1>
+<form id="new-period">
+<fieldset><legend>Введи дати менструації</legend>
+<p><label>Старт:</label><input type="date" id="start-date" required></p>
+<p><label>Кінець:</label><input type="date" id="end-date" required></p>
+</fieldset>
+<button type="submit">Зберегти 📅</button>
+</form>
+<section id="past-periods"></section>
+<p>Наступна: <span id="prediction"></span></p>
+<script>
+let periods=JSON.parse(localStorage.getItem('periods'))||[];
+function savePeriods(){localStorage.setItem('periods',JSON.stringify(periods));render();}
+function addPeriod(e){e.preventDefault();let s=new Date(document.getElementById('start-date').value),e=new Date(document.getElementById('end-date').value);periods.push({start:s,end:e});savePeriods();}
+function predict(){let now=new Date(),last=periods[periods.length-1];if(!last)return;let cycle=28*24*60*60*1000;let next=new Date(last.start.getTime()+cycle);document.getElementById('prediction').textContent=next.toLocaleDateString('uk-UA');}
+function render(){let past=document.getElementById('past-periods');past.innerHTML=periods.map(p=>`<div>${p.start.toLocaleDateString('uk-UA')} - ${p.end.toLocaleDateString('uk-UA')}</div>`).join('');predict();}
+document.getElementById('new-period').addEventListener('submit',addPeriod);render();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+</script>
+</body>
 </html>
